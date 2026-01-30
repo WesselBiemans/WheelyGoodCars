@@ -13,10 +13,22 @@
                 <div class="flex items-center">
                     <h1 class="text-2xl font-bold text-cyan-700">WheelyGoodCars</h1>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-5">
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Home</a>
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Overzicht alle auto's</a>
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Auto verkopen</a>
+
+                    @guest
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-cyan-700">Login</a>
+                        <a href="{{ route('register') }}" class="bg-cyan-700 text-white px-4 py-2 rounded-lg hover:bg-cyan-800">Registreer</a>
+                    @endguest
+
+                    @auth
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="text-gray-700 hover:text-cyan-700">Uitloggen</button>
+                        </form>
+                    @endauth
                 </div>
             </div>
         </div>
