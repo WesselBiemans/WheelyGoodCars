@@ -13,7 +13,7 @@
                 <div class="flex items-center">
                     <h1 class="text-2xl font-bold text-cyan-700">WheelyGoodCars</h1>
                 </div>
-                <div class="flex items-center space-x-5">
+                <div class="flex items-center space-x-8">
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Home</a>
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Overzicht alle auto's</a>
                     <a href="#" class="text-gray-700 hover:text-cyan-700">Auto verkopen</a>
