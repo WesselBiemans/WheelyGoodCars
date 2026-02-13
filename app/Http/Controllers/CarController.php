@@ -74,4 +74,21 @@ class CarController extends Controller
 
         return redirect()->route('cars.create')->with('success', 'Auto succesvol toegevoegd!');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $car = Car::findOrFail($id);
+
+        // Check if the authenticated user owns the car
+        if ($car->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $car->delete();
+
+        return redirect()->route("cars.index")->with('success', 'Auto verwijderd!');
+    }
 }
