@@ -53,4 +53,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Car::class);
     }
+
+    /**
+     * Determine whether this user should be treated as an admin.
+     */
+    public function isAdmin(): bool
+    {
+        $adminEmails = config('app.admin_emails', []);
+
+        return in_array(strtolower($this->email), array_map('strtolower', $adminEmails), true);
+    }
 }

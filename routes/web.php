@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminTagController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ Route::middleware('auth')->group(function () {
 
     // Car routes
     Route::resource('cars', CarController::class)->only(['index', 'create', 'store', 'destroy']);
+
+    Route::get('/admin/tags', [AdminTagController::class, 'index'])->name('admin.tags.index');
 });
 
 require __DIR__.'/auth.php';

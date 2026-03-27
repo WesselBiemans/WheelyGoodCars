@@ -11,6 +11,11 @@
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-cyan-700 {{ request()->routeIs('home') ? 'text-cyan-700 font-semibold' : '' }}">Home</a>
                     <a href="{{ route('cars.index') }}" class="text-gray-700 hover:text-cyan-700 {{ request()->routeIs('cars.index') ? 'text-cyan-700 font-semibold' : '' }}">Overzicht alle auto's</a>
                     <a href="{{ route('cars.create') }}" class="text-gray-700 hover:text-cyan-700 {{ request()->routeIs('cars.create') ? 'text-cyan-700 font-semibold' : '' }}">Auto verkopen</a>
+                    @auth
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.tags.index') }}" class="text-gray-700 hover:text-cyan-700 {{ request()->routeIs('admin.tags.index') ? 'text-cyan-700 font-semibold' : '' }}">Tag statistieken</a>
+                        @endif
+                    @endauth
 
                     @guest
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-cyan-700">Login</a>
