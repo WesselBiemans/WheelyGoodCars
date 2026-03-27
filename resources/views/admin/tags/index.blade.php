@@ -8,6 +8,26 @@
         <div class="px-6 py-4 border-b border-slate-200">
             <h1 class="text-2xl font-bold text-slate-800">Tag gebruiksoverzicht</h1>
             <p class="text-slate-500 mt-1">Aantal keer dat elke tag aan een auto is gekoppeld.</p>
+
+            <form method="GET" action="{{ route('admin.tags.index') }}" class="mt-4 flex flex-wrap items-center gap-3">
+                <label for="count_scope" class="text-sm font-medium text-slate-700">Telling op basis van</label>
+                <select id="count_scope" name="count_scope" class="rounded-md border-slate-300 text-sm focus:border-cyan-700 focus:ring-cyan-700">
+                    <option value="all" {{ $countScope === 'all' ? 'selected' : '' }}>Alle auto's</option>
+                    <option value="exclude_unsold" {{ $countScope === 'exclude_unsold' ? 'selected' : '' }}>Alleen verkochte auto's (onverkocht uitsluiten)</option>
+                    <option value="exclude_sold" {{ $countScope === 'exclude_sold' ? 'selected' : '' }}>Alleen onverkochte auto's (verkocht uitsluiten)</option>
+                </select>
+                <button type="submit" class="inline-flex items-center rounded-md bg-cyan-700 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-800">Toepassen</button>
+            </form>
+
+            <p class="mt-3 text-sm text-slate-600">
+                @if ($countScope === 'exclude_unsold')
+                    Je ziet nu alleen tag-gebruik op verkochte auto's.
+                @elseif ($countScope === 'exclude_sold')
+                    Je ziet nu alleen tag-gebruik op onverkochte auto's.
+                @else
+                    Je ziet nu tag-gebruik op alle auto's.
+                @endif
+            </p>
         </div>
 
         <div class="overflow-x-auto">
