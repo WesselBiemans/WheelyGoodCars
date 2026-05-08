@@ -19,15 +19,25 @@ class CarMarketplaceSeeder extends Seeder
     {
         $faker = fake();
 
-        $providers = collect(range(1, 150))->map(function () use ($faker) {
-            return User::create([
-                'name' => $faker->name(),
-                'email' => $faker->unique()->safeEmail(),
-                'password' => Hash::make('password'),
-                'remember_token' => Str::random(10),
-                'phone_number' => $faker->optional()->numerify('06########'),
-            ]);
-        });
+        $admin = User::create([
+            'name' => 'Admin',
+            'email' => 'admin@wheelygoodcars.test',
+            'password' => Hash::make('password'),
+            'remember_token' => Str::random(10),
+            'phone_number' => null,
+        ]);
+
+        $providers = collect([$admin])->merge(
+            collect(range(1, 149))->map(function () use ($faker) {
+                return User::create([
+                    'name' => $faker->name(),
+                    'email' => $faker->unique()->safeEmail(),
+                    'password' => Hash::make('password'),
+                    'remember_token' => Str::random(10),
+                    'phone_number' => $faker->optional()->numerify('06########'),
+                ]);
+            })
+        );
 
         $tagNames = [
             'Nieuw',
