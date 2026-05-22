@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Car;
 use App\Models\Tag;
 use App\Rules\LicensePlate;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,6 +34,23 @@ class CarController extends Controller
     }
 
     /**
+     * Check a license plate using the shared validation rule.
+     */
+    public function checkLicensePlate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'license_plate' => ['required', 'string', 'max:255', new LicensePlate],
+        ]);
+
+        $normalized = $this->normalizeLicensePlate($validated['license_plate']);
+
+        return response()->json([
+            'license_plate' => $this->formatLicensePlate($normalized),
+            'message' => 'Kenteken is geldig.',
+        ]);
+    }
+
+    /**
      * Store a newly created car in the database.
      */
     public function store(Request $request)
@@ -53,13 +71,7 @@ class CarController extends Controller
             'tags.*' => 'exists:tags,id',
         ]);
 
-        // Normalize license plate format (remove spaces/dashes, convert to uppercase, then add standard dashes)
-        $normalized = strtoupper(str_replace([' ', '-'], '', $validated['license_plate']));
-
-        // Add dashes in the standard format (XX-XX-XX pattern based on length and type)
-        if (strlen($normalized) === 6) {
-            $validated['license_plate'] = substr($normalized, 0, 2) . '-' . substr($normalized, 2, 2) . '-' . substr($normalized, 4, 2);
-        }
+        $validated['license_plate'] = $this->formatLicensePlate($validated['license_plate']);
 
         // Add the authenticated user's ID
         $validated['user_id'] = Auth::id();
@@ -72,7 +84,23 @@ class CarController extends Controller
             $car->tags()->attach($request->tags);
         }
 
-        return redirect()->route('cars.create')->with('success', 'Auto succesvol toegevoegd!');
+        return redirect()->route('cars.index')->with('success', 'Auto succesvol toegevoegd!');
+    }
+
+    private function normalizeLicensePlate(string $value): string
+    {
+        return strtoupper(str_replace([' ', '-'], '', $value));
+    }
+
+    private function formatLicensePlate(string $value): string
+    {
+        $normalized = $this->normalizeLicensePlate($value);
+
+        if (strlen($normalized) !== 6) {
+            return $normalized;
+        }
+
+        return substr($normalized, 0, 2) . '-' . substr($normalized, 2, 2) . '-' . substr($normalized, 4, 2);
     }
 
     /**

@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Car routes
+    Route::get('/cars/check-license-plate', [CarController::class, 'checkLicensePlate'])->name('cars.check-license-plate');
     Route::resource('cars', CarController::class)->only(['index', 'create', 'store', 'destroy']);
 
     Route::get('/admin/tags', [AdminTagController::class, 'index'])->name('admin.tags.index');
