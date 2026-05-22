@@ -31,6 +31,10 @@
                     </div>
 
                     <div class="text-sm text-gray-600">
+                        <span>{{ $car->views ?? 0 }} weergaven</span>
+                    </div>
+
+                    <div class="text-sm text-gray-600">
                         <span>{{ number_format($car->mileage, 0, ',', '.') }} km</span>
                     </div>
 
@@ -60,9 +64,11 @@
                 <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
                     <span class="text-2xl font-bold text-cyan-700">€ {{ number_format($car->price, 2, ',', '.') }}</span>
                     <div class="car-buttons flex items-center justify-between">
-                        <a href="#" class="bg-cyan-700 text-white px-4 py-2 rounded-lg hover:bg-cyan-800 transition-colors">
+                        <button type="button"
+                                onclick="window.recordCarView(event, '{{ route('cars.views.increment', $car) }}')"
+                                class="bg-cyan-700 text-white px-4 py-2 rounded-lg hover:bg-cyan-800 transition-colors">
                             Bekijk
-                        </a>
+                        </button>
                         <form action="{{ route('cars.destroy', $car->id) }}" method="POST">
                             @csrf
                             @method('DELETE')

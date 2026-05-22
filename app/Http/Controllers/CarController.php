@@ -39,6 +39,16 @@ class CarController extends Controller
     }
 
     /**
+     * Increment the view counter for a car.
+     */
+    public function incrementViews(Car $car)
+    {
+        $car->increment('views');
+
+        return response()->noContent();
+    }
+
+    /**
      * Show the form for creating a new car.
      */
     public function create()

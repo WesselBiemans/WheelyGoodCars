@@ -4,6 +4,29 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+window.recordCarView = async (event, url) => {
+	event.preventDefault();
+
+	const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+	if (!csrfToken) {
+		return;
+	}
+
+	try {
+		await fetch(url, {
+			method: 'POST',
+			headers: {
+				'X-CSRF-TOKEN': csrfToken,
+				'X-Requested-With': 'XMLHttpRequest',
+				Accept: 'application/json',
+			},
+		});
+	} catch (error) {
+		// Keep the button non-blocking if the counter request fails.
+	}
+};
+
 document.addEventListener('alpine:init', () => {
 	Alpine.data('carCreateWizard', (config = {}) => ({
 		step: config.startStep ?? 1,

@@ -130,3 +130,76 @@ it('shows only the authenticated users cars on the my cars page', function () {
     $response->assertDontSee('Honda Civic');
     $response->assertDontSee('EF-34-GH');
 });
+
+it('allows guests to view the full car overview', function () {
+    $owner = User::create([
+        'name' => 'Guest Overview User',
+        'email' => 'guest-overview@example.com',
+        'password' => 'password',
+    ]);
+
+    Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'ZZ-99-ZZ',
+        'brand' => 'Volkswagen',
+        'model' => 'Golf',
+        'price' => 12950,
+        'mileage' => 110000,
+    ]);
+
+    $response = $this->get(route('cars.index'));
+
+    $response->assertOk();
+    $response->assertSee('Volkswagen Golf');
+    $response->assertSee('ZZ-99-ZZ');
+});
+
+it('increments the car view counter when the view button is clicked', function () {
+    $owner = User::create([
+        'name' => 'View Counter User',
+        'email' => 'view-counter@example.com',
+        'password' => 'password',
+    ]);
+
+    $car = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'AA-11-BB',
+        'brand' => 'Audi',
+        'model' => 'A3',
+        'price' => 14950,
+        'mileage' => 89000,
+        'views' => 4,
+    ]);
+
+    $response = $this->post(route('cars.views.increment', $car));
+
+    $response->assertNoContent();
+    expect($car->refresh()->views)->toBe(5);
+});
+
+it('shows the view count on the public car overview and my cars page', function () {
+    $owner = User::create([
+        'name' => 'Views Display User',
+        'email' => 'views-display@example.com',
+        'password' => 'password',
+    ]);
+
+    $car = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'CC-22-DD',
+        'brand' => 'BMW',
+        'model' => '1 Series',
+        'price' => 16950,
+        'mileage' => 76000,
+        'views' => 12,
+    ]);
+
+    $publicResponse = $this->get(route('cars.index'));
+    $publicResponse->assertOk();
+    $publicResponse->assertSee('12 weergaven');
+
+    $authResponse = $this->actingAs($owner)->get(route('cars.my-cars'));
+    $authResponse->assertOk();
+    $authResponse->assertSee('12 weergaven');
+    $authResponse->assertSee('BMW 1 Series');
+});
