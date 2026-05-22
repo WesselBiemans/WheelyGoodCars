@@ -16,12 +16,24 @@ class CarController extends Controller
      */
     public function index()
     {
+        $selectedTagIds = $this->selectedTagIds(request());
+
         $cars = Car::with(['user', 'tags'])
             ->whereNull('sold_at')
+            ->when(! empty($selectedTagIds), function ($query) use ($selectedTagIds) {
+                foreach ($selectedTagIds as $selectedTagId) {
+                    $query->whereHas('tags', function ($tagQuery) use ($selectedTagId) {
+                        $tagQuery->where('tags.id', $selectedTagId);
+                    });
+                }
+            })
             ->orderBy('created_at', 'desc')
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('cars.index', compact('cars'));
+        $tags = Tag::orderBy('name')->get();
+
+        return view('cars.index', compact('cars', 'tags', 'selectedTagIds'));
     }
 
     /**
@@ -29,13 +41,25 @@ class CarController extends Controller
      */
     public function myCars()
     {
+        $selectedTagIds = $this->selectedTagIds(request());
+
         $cars = Car::with(['user', 'tags'])
             ->whereNull('sold_at')
             ->where('user_id', Auth::id())
+            ->when(! empty($selectedTagIds), function ($query) use ($selectedTagIds) {
+                foreach ($selectedTagIds as $selectedTagId) {
+                    $query->whereHas('tags', function ($tagQuery) use ($selectedTagId) {
+                        $tagQuery->where('tags.id', $selectedTagId);
+                    });
+                }
+            })
             ->orderBy('created_at', 'desc')
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
-        return view('cars.my-cars', compact('cars'));
+        $tags = Tag::orderBy('name')->get();
+
+        return view('cars.my-cars', compact('cars', 'tags', 'selectedTagIds'));
     }
 
     /**
@@ -125,6 +149,16 @@ class CarController extends Controller
         }
 
         return substr($normalized, 0, 2) . '-' . substr($normalized, 2, 2) . '-' . substr($normalized, 4, 2);
+    }
+
+    /**
+     * Extract selected tag IDs from the request.
+     *
+     * @return array<int>
+     */
+    private function selectedTagIds(Request $request): array
+    {
+        return array_values(array_filter(array_map('intval', (array) $request->input('tags', []))));
     }
 
     /**

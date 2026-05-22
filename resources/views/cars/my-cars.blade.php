@@ -11,6 +11,43 @@
         <p class="mt-2 text-gray-600">Bekijk alleen de auto's die jij zelf hebt geplaatst.</p>
     </div>
 
+    <form method="GET" action="{{ route('cars.my-cars') }}" class="mb-8 bg-white rounded-lg shadow-lg p-6">
+        <div class="flex flex-col gap-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Filter op tags</h3>
+                <p class="text-sm text-gray-600">Selecteer een of meer tags om alleen jouw auto's met die tags te tonen.</p>
+            </div>
+
+            @if($tags->count() > 0)
+                <div class="flex flex-wrap gap-3">
+                    @foreach($tags as $tag)
+                        <label class="inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:border-cyan-400">
+                            <input type="checkbox"
+                                   name="tags[]"
+                                   value="{{ $tag->id }}"
+                                   {{ in_array($tag->id, $selectedTagIds ?? []) ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-cyan-600 shadow-sm focus:ring-cyan-500">
+                            <span class="inline-block px-2 py-1 rounded text-white" style="background-color: {{ $tag->color ?? '#6B7280' }}">
+                                {{ $tag->name }}
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">Er zijn nog geen tags beschikbaar.</p>
+            @endif
+
+            <div class="flex items-center gap-3">
+                <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-cyan-700 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-cyan-800 transition-colors">
+                    Filteren
+                </button>
+                <a href="{{ route('cars.my-cars') }}" class="text-sm text-gray-600 hover:text-cyan-700">
+                    Wis filter
+                </a>
+            </div>
+        </div>
+    </form>
+
     @if($cars->count() > 0)
     <div class="car-items grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($cars as $car)

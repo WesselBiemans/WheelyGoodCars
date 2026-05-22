@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Car;
+use App\Models\Tag;
 use App\Models\User;
 
 it('renders the car creation wizard', function () {
@@ -202,4 +203,114 @@ it('shows the view count on the public car overview and my cars page', function 
     $authResponse->assertOk();
     $authResponse->assertSee('12 weergaven');
     $authResponse->assertSee('BMW 1 Series');
+});
+
+it('filters the public car overview by selected tags', function () {
+    $owner = User::create([
+        'name' => 'Tag Filter User',
+        'email' => 'tag-filter@example.com',
+        'password' => 'password',
+    ]);
+
+    $electric = Tag::create([
+        'name' => 'Electric',
+        'color' => '#0EA5E9',
+    ]);
+
+    $diesel = Tag::create([
+        'name' => 'Diesel',
+        'color' => '#64748B',
+    ]);
+
+    $electricCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'EE-11-EE',
+        'brand' => 'Tesla',
+        'model' => 'Model 3',
+        'price' => 27950,
+        'mileage' => 42000,
+    ]);
+    $electricCar->tags()->attach($electric->id);
+
+    $bothCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'BB-33-BB',
+        'brand' => 'Hyundai',
+        'model' => 'Ioniq 5',
+        'price' => 32950,
+        'mileage' => 18000,
+    ]);
+    $bothCar->tags()->attach([$electric->id, $diesel->id]);
+
+    $dieselCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'DD-22-DD',
+        'brand' => 'BMW',
+        'model' => '320d',
+        'price' => 18950,
+        'mileage' => 89000,
+    ]);
+    $dieselCar->tags()->attach($diesel->id);
+
+    $response = $this->get(route('cars.index', ['tags' => [$electric->id, $diesel->id]]));
+
+    $response->assertOk();
+    $response->assertSee('Hyundai Ioniq 5');
+    $response->assertDontSee('BMW 320d');
+    $response->assertDontSee('Tesla Model 3');
+});
+
+it('filters my cars by selected tags', function () {
+    $owner = User::create([
+        'name' => 'My Cars Tag User',
+        'email' => 'my-cars-tag@example.com',
+        'password' => 'password',
+    ]);
+
+    $sport = Tag::create([
+        'name' => 'Sport',
+        'color' => '#EF4444',
+    ]);
+
+    $family = Tag::create([
+        'name' => 'Family',
+        'color' => '#22C55E',
+    ]);
+
+    $sportCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'SS-33-SS',
+        'brand' => 'Porsche',
+        'model' => 'Cayman',
+        'price' => 45950,
+        'mileage' => 51000,
+    ]);
+    $sportCar->tags()->attach($sport->id);
+
+    $bothCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'BB-55-BB',
+        'brand' => 'Audi',
+        'model' => 'A5 Sportback',
+        'price' => 37950,
+        'mileage' => 64000,
+    ]);
+    $bothCar->tags()->attach([$sport->id, $family->id]);
+
+    $familyCar = Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'FF-44-FF',
+        'brand' => 'Volkswagen',
+        'model' => 'Touran',
+        'price' => 16950,
+        'mileage' => 102000,
+    ]);
+    $familyCar->tags()->attach($family->id);
+
+    $response = $this->actingAs($owner)->get(route('cars.my-cars', ['tags' => [$sport->id, $family->id]]));
+
+    $response->assertOk();
+    $response->assertSee('Audi A5 Sportback');
+    $response->assertDontSee('Volkswagen Touran');
+    $response->assertDontSee('Porsche Cayman');
 });
