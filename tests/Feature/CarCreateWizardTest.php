@@ -71,3 +71,62 @@ it('redirects to the cars overview after creating a car', function () {
 
     expect(Car::count())->toBe(1);
 });
+
+it('shows my cars link only to logged in users', function () {
+    $guestResponse = $this->get(route('home'));
+
+    $guestResponse->assertOk();
+    $guestResponse->assertDontSee('My Cars');
+
+    $user = User::create([
+        'name' => 'Nav User',
+        'email' => 'nav-user@example.com',
+        'password' => 'password',
+    ]);
+
+    $authResponse = $this->actingAs($user)->get(route('home'));
+
+    $authResponse->assertOk();
+    $authResponse->assertSee('My Cars');
+    $authResponse->assertSee(route('cars.my-cars'), false);
+});
+
+it('shows only the authenticated users cars on the my cars page', function () {
+    $owner = User::create([
+        'name' => 'Owner User',
+        'email' => 'owner-user@example.com',
+        'password' => 'password',
+    ]);
+
+    $otherUser = User::create([
+        'name' => 'Other User',
+        'email' => 'other-user@example.com',
+        'password' => 'password',
+    ]);
+
+    Car::create([
+        'user_id' => $owner->id,
+        'license_plate' => 'AB-12-CD',
+        'brand' => 'Toyota',
+        'model' => 'Yaris',
+        'price' => 8500,
+        'mileage' => 120000,
+    ]);
+
+    Car::create([
+        'user_id' => $otherUser->id,
+        'license_plate' => 'EF-34-GH',
+        'brand' => 'Honda',
+        'model' => 'Civic',
+        'price' => 9200,
+        'mileage' => 98000,
+    ]);
+
+    $response = $this->actingAs($owner)->get(route('cars.my-cars'));
+
+    $response->assertOk();
+    $response->assertSee('Toyota Yaris');
+    $response->assertSee('AB-12-CD');
+    $response->assertDontSee('Honda Civic');
+    $response->assertDontSee('EF-34-GH');
+});

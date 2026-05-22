@@ -25,6 +25,20 @@ class CarController extends Controller
     }
 
     /**
+     * Display a listing of cars belonging to the authenticated user.
+     */
+    public function myCars()
+    {
+        $cars = Car::with(['user', 'tags'])
+            ->whereNull('sold_at')
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
+        return view('cars.my-cars', compact('cars'));
+    }
+
+    /**
      * Show the form for creating a new car.
      */
     public function create()

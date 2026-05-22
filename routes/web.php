@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
 
     // Car routes
     Route::get('/cars/check-license-plate', [CarController::class, 'checkLicensePlate'])->name('cars.check-license-plate');
+    Route::get('/cars/my-cars', [CarController::class, 'myCars'])->name('cars.my-cars');
     Route::resource('cars', CarController::class)->only(['index', 'create', 'store', 'destroy']);
 
     Route::get('/admin/tags', [AdminTagController::class, 'index'])->name('admin.tags.index');
